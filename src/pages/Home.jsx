@@ -9,9 +9,9 @@ function Home() {
 	const heroImages = [
 		'url("https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Brest_Brest_Fortress_Kholm_Gate_9209_2150.jpg/1920px-Brest_Brest_Fortress_Kholm_Gate_9209_2150.jpg")',
 		'url("https://avatars.mds.yandex.net/get-altay/1608507/2a00000168a85cad22cdfedf3f417ddb6885/XXL_height")',
-		'url("../../public/img/narodnoe-vozlozhenie_6_09.05.2025.jpg")',
-		'url("../../public/img/aba1ea5c1c78a4c26a0d3a4d1cad75de.jpg")',
-		'url("../../public/img/hatyn-54075.jpg")',
+		'url("/img/narodnoe-vozlozhenie_6_09.05.2025.jpg")',
+		'url("/img/aba1ea5c1c78a4c26a0d3a4d1cad75de.jpg")',
+		'url("/img/hatyn-54075.jpg")',
 	]
 
 	const slideTitles = [
