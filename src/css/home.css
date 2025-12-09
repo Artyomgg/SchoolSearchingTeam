@@ -1,0 +1,379 @@
+.home-page {
+  font-family: 'Arial', 'Helvetica', sans-serif;
+  color: #333;
+  overflow-x: hidden;
+}
+
+/* Герой секция */
+.hero-section {
+  height: 100vh;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed; /* Параллакс эффект */
+  position: relative;
+  transition: background-image 1.5s ease-in-out;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-content {
+  text-align: center;
+  color: white;
+  padding: 20px;
+  max-width: 800px;
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.hero-subtitle {
+  font-size: 1.8rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+.hero-quote {
+  font-size: 1.5rem;
+  font-style: italic;
+  border-left: 4px solid #d32f2f;
+  padding-left: 20px;
+  margin-top: 2rem;
+}
+
+.scroll-indicator {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  font-size: 2rem;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {transform: translateY(0) translateX(-50%);}
+  40% {transform: translateY(-10px) translateX(-50%);}
+  60% {transform: translateY(-5px) translateX(-50%);}
+}
+
+/* Основные стили */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+section {
+  padding: 80px 0;
+}
+
+h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 3rem;
+  color: #2c3e50;
+  position: relative;
+}
+
+h2::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 3px;
+  background: #d32f2f;
+}
+
+/* Секция миссии */
+.mission-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  margin-top: 50px;
+}
+
+.mission-card {
+  background: white;
+  padding: 40px 30px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.mission-card:hover {
+  transform: translateY(-10px);
+}
+
+.mission-card .icon {
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+
+.mission-card h3 {
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+  color: #2c3e50;
+}
+
+/* Секция мероприятий */
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 30px;
+}
+
+.event-card {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  display: flex;
+  transition: transform 0.3s ease;
+}
+
+.event-card:hover {
+  transform: translateY(-5px);
+}
+
+.event-date {
+  background: #d32f2f;
+  color: white;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+}
+
+.event-date .day {
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+
+.event-date .month {
+  font-size: 1.2rem;
+}
+
+.event-content {
+  padding: 25px;
+  flex-grow: 1;
+}
+
+.event-content h3 {
+  margin-bottom: 10px;
+  color: #2c3e50;
+}
+
+.event-tag {
+  display: inline-block;
+  background: #e8f4ff;
+  color: #2980b9;
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  margin-top: 15px;
+}
+
+/* Статистика */
+.stats-section {
+  background: linear-gradient(135deg, #2c3e50 0%, #4a6491 100%);
+  color: white;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 40px;
+  text-align: center;
+}
+
+.stat-item {
+  padding: 20px;
+}
+
+.stat-number {
+  font-size: 3.5rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #ffcc00;
+}
+
+.stat-label {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+/* Цитата */
+.quote-section {
+  background: #f8f9fa;
+}
+
+blockquote {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+  font-size: 1.8rem;
+  font-style: italic;
+  color: #2c3e50;
+  padding: 40px;
+  position: relative;
+}
+
+blockquote::before {
+  content: '"';
+  font-size: 6rem;
+  color: #d32f2f;
+  opacity: 0.3;
+  position: absolute;
+  top: -20px;
+  left: 10px;
+}
+
+blockquote footer {
+  font-size: 1.2rem;
+  margin-top: 20px;
+  color: #7f8c8d;
+}
+
+/* Призыв к действию */
+.cta-section {
+  text-align: center;
+  background: linear-gradient(to right, #1a237e, #283593);
+  color: white;
+}
+
+.cta-section h2 {
+  color: white;
+}
+
+.cta-section h2::after {
+  background: #ffcc00;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.btn-primary, .btn-secondary {
+  padding: 15px 40px;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+}
+
+.btn-primary {
+  background: #ffcc00;
+  color: #1a237e;
+}
+
+.btn-primary:hover {
+  background: #ffd740;
+  transform: scale(1.05);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.btn-secondary:hover {
+  background: white;
+  color: #1a237e;
+}
+
+/* Футер */
+.main-footer {
+  background: #2c3e50;
+  color: white;
+  padding: 50px 0 20px;
+}
+
+.footer-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 40px;
+  margin-bottom: 40px;
+}
+
+.footer-info h3 {
+  color: #ffcc00;
+  margin-bottom: 20px;
+}
+
+.footer-contact p {
+  margin-bottom: 10px;
+}
+
+.footer-bottom {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.3rem;
+  }
+  
+  .mission-cards,
+  .events-grid,
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .event-card {
+    flex-direction: column;
+  }
+  
+  .event-date {
+    flex-direction: row;
+    gap: 10px;
+    min-width: auto;
+  }
+  
+  .cta-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    max-width: 300px;
+  }
+}
