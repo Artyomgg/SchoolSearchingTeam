@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
 import '../css/home.css'
+import Footer from '../components/Footer'
+import { useNavigate } from 'react-router';
 
 function Home() {
 	const [currentImageIndex, setCurrentImageIndex] = useState(0)
 	const [isTransitioning, setIsTransitioning] = useState(false)
+	const navigate = useNavigate()
 
 	// Реальные тематические изображения для поискового отряда
 	const heroImages = [
@@ -220,36 +223,15 @@ function Home() {
 						<h2>Хочешь стать частью отряда?</h2>
 						<p>Присоединяйся к нам и помоги восстановить историческую справедливость</p>
 						<div className='cta-buttons'>
-							<button className='btn-primary'>Вступить в отряд</button>
-							<button className='btn-secondary'>Узнать больше</button>
+							<button className='btn-primary' onClick={()=> navigate('/join')}>Вступить в отряд</button>
+							<button className='btn-secondary' onClick={()=> navigate('/about')}>Узнать больше</button>
 						</div>
 					</div>
 				</section>
 			</main>
 
 			{/* Футер */}
-			<footer className='main-footer'>
-				<div className='container'>
-					<div className='footer-content'>
-						<div className='footer-info'>
-							<h3>Поисковый отряд "Мы этой памяти верны"</h3>
-							<p>ГУО "Средняя школа №30 г. Минска"</p>
-							<p>г. Минск, ул. Жуковского, 11</p>
-						</div>
-						<div className='footer-contact'>
-							<p>Руководитель: </p>
-							<p>Email: search.team@school30.by</p>
-						</div>
-					</div>
-					<div className='footer-bottom'>
-						<p>
-							© {new Date().getFullYear()} Поисковый отряд "Мы этой памяти верны". Все права
-							защищены.
-						</p>
-						<p className='footer-motto'>"Память сильнее времени"</p>
-					</div>
-				</div>
-			</footer>
+			<Footer/>
 		</div>
 	)
 }
