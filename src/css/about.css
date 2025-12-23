@@ -509,7 +509,6 @@ section {
 
 .map-image {
   margin-top: 30px;
-  height: 300px;
   background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
   border-radius: 10px;
   display: flex;
