@@ -203,7 +203,6 @@ function Home() {
 						</div>
 					</div>
 				</section>
-
 				{/* Цитата */}
 				<section className='quote-section'>
 					<div className='container'>

@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react'
 import { Link } from 'react-router'
-import '../css/Join.css'
 
 function Join() {
 	const [formData, setFormData] = useState({
