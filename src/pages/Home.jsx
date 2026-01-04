@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react'
-import '../css/home.css'
 import Footer from '../components/Footer'
 import { useNavigate } from 'react-router';
 
@@ -129,7 +128,7 @@ function Home() {
 
 			{/* Основное содержание */}
 			<main className='main-content'>
-				{/* Миссия отряда */}
+						{/* Миссия отряда */}
 				<section className='mission-section'>
 					<div className='container'>
 						<h2>Наша Миссия</h2>

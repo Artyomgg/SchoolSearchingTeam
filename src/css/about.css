@@ -577,3 +577,7 @@ section {
     grid-template-columns: 1fr;
   }
 }
+
+.veterans-section .section-header h2{
+	color: #ffffff;
+}
