@@ -354,7 +354,7 @@ function Join() {
 												Просмотр
 											</button>
 											<a
-												href='/documents/consent.pdf'
+												href='/data/personal_data_agreement.pdf'
 												download='Согласие_на_обработку_персональных_данных.pdf'
 												className='document-btn'
 											>
