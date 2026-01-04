@@ -65,76 +65,6 @@ function Join() {
 		setPdfError(true)
 	}
 
-	// Альтернативный текст если PDF не загружается
-	const pdfAlternativeText = (
-		<div className='pdf-alternative'>
-			<h4>СОГЛАСИЕ НА ОБРАБОТКУ ПЕРСОНАЛЬНЫХ ДАТАХ</h4>
-
-			<p>
-				<strong>Я, _____________________________________,</strong>
-			</p>
-			<p>
-				<em>(ФИО родителя/опекуна)</em>
-			</p>
-
-			<p>являясь законным представителем несовершеннолетнего</p>
-			<p>
-				<strong>_____________________________________,</strong>
-			</p>
-			<p>
-				<em>(ФИО ребенка)</em>
-			</p>
-
-			<p>обучающегося в ГУО "Средняя школа №30 г. Минска",</p>
-			<p>
-				в классе ______, в соответствии со статьей 9 Закона Республики Беларусь от 07.05.2021 № 99-З
-				"О защите персональных данных",
-			</p>
-
-			<h4>ДАЮ СОГЛАСИЕ</h4>
-			<p>
-				поисковому отряду "Мы этой памяти верны" на обработку персональных данных моего ребенка:
-			</p>
-
-			<ul>
-				<li>Фамилия, имя, отчество</li>
-				<li>Дата рождения</li>
-				<li>Класс обучения</li>
-				<li>Контактные данные (телефон, email)</li>
-				<li>Данные о состоянии здоровья (по необходимости)</li>
-				<li>Иная информация, необходимая для участия в деятельности отряда</li>
-			</ul>
-
-			<h4>Цель обработки:</h4>
-			<p>
-				участие в деятельности поискового отряда, организация поисковых экспедиций, мероприятий
-				патриотической направленности, обеспечение безопасности ребенка.
-			</p>
-
-			<h4>Срок действия согласия:</h4>
-			<p>на время обучения в школе и участия в деятельности поискового отряда.</p>
-
-			<p>
-				Согласие может быть отозвано в любое время путем письменного уведомления руководителя
-				отряда.
-			</p>
-
-			<div className='signature-block'>
-				<p>_____________________</p>
-				<p>
-					<strong>Подпись</strong>
-				</p>
-			</div>
-
-			<div className='signature-block'>
-				<p>_____________________</p>
-				<p>
-					<strong>Дата</strong>
-				</p>
-			</div>
-		</div>
-	)
-
 	return (
 		<div className='join-page'>
 			{/* Навигация */}
@@ -490,7 +420,7 @@ function Join() {
 
 									<div className='pdf-viewer'>
 										<object
-											data='../../DATA/personal_data_agreement.pdf'
+											data='/data/personal_data_agreement.pdf'
 											type='application/pdf'
 											width='100%'
 											height='600px'
@@ -498,15 +428,12 @@ function Join() {
 										>
 											{/* Если object не работает, показываем iframe */}
 											<iframe
-												src={`../../DATA/personal_data_agreement.pdf`}
+												src={`/data/personal_data_agreement.pdf`}
 												title='PDF Viewer'
 												width='100%'
 												height='600px'
 												onError={handlePdfError}
-											>
-												{/* Если iframe тоже не работает, показываем альтернативный текст */}
-												{pdfAlternativeText}
-											</iframe>
+											></iframe>
 										</object>
 									</div>
 								</>
@@ -521,8 +448,8 @@ function Join() {
 
 									<div className='error-actions'>
 										<a
-											href='../../DATA/personal_data_agreement.pdf'
-											download='../../DATA/personal_data_agreement.pdf'
+											href='/data/personal_data_agreement.pdf'
+											download='Согласие_на_обработку_персональных_данных.pdf'
 											className='document-btn'
 										>
 											<svg width='16' height='16' viewBox='0 0 24 24' fill='none'>
