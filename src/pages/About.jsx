@@ -1,5 +1,3 @@
-import '../css/About.css'
-
 function About() {
 	const achievements = [{ year: '2025', description: 'Основание поискового отряда' }]
 
