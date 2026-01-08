@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { supabase } from '../lib/supabase.js'
+import { logoutAdmin, requireAdmin } from '../utils/auth.js'
 
 function Applications() {
 	const [applications, setApplications] = useState([])
@@ -11,14 +12,17 @@ function Applications() {
 	const navigate = useNavigate()
 
 	useEffect(() => {
+		// Проверка доступа
+		if (!requireAdmin(navigate)) return
+
 		fetchApplications()
-	}, [selectedStatus])
+	}, [selectedStatus, navigate])
 
 	const fetchApplications = async () => {
 		try {
 			setLoading(true)
 			let query = supabase
-				.from('applications')
+				.from('application_forms')
 				.select('*')
 				.order('created_at', { ascending: false })
 
@@ -41,7 +45,7 @@ function Applications() {
 	const updateStatus = async (id, status) => {
 		try {
 			const { error } = await supabase
-				.from('applications')
+				.from('application_forms')
 				.update({
 					status,
 					updated_at: new Date().toISOString(),
@@ -51,9 +55,11 @@ function Applications() {
 			if (error) throw error
 
 			// Обновляем локальное состояние
-			setApplications(prev => prev.map(app => (app.id === id ? { ...app, status } : app)))
-
-			// Скрываем детали, если они открыты
+			setApplications(prev =>
+				prev.map(app =>
+					app.id === id ? { ...app, status, updated_at: new Date().toISOString() } : app
+				)
+			)
 			setSelectedApplication(null)
 		} catch (err) {
 			console.error('Ошибка при обновлении статуса:', err)
@@ -65,7 +71,7 @@ function Applications() {
 		if (!window.confirm('Вы уверены, что хотите удалить эту заявку?')) return
 
 		try {
-			const { error } = await supabase.from('applications').delete().eq('id', id)
+			const { error } = await supabase.from('application_forms').delete().eq('id', id)
 
 			if (error) throw error
 
@@ -75,6 +81,11 @@ function Applications() {
 			console.error('Ошибка при удалении заявки:', err)
 			setError('Не удалось удалить заявку')
 		}
+	}
+
+	const handleLogout = () => {
+		logoutAdmin()
+		navigate('/login')
 	}
 
 	const getStatusColor = status => {
@@ -104,13 +115,23 @@ function Applications() {
 	}
 
 	const formatDate = dateString => {
-		return new Date(dateString).toLocaleDateString('ru-RU', {
-			day: '2-digit',
-			month: '2-digit',
-			year: 'numeric',
-			hour: '2-digit',
-			minute: '2-digit',
-		})
+		if (!dateString) return '—'
+		try {
+			return new Date(dateString).toLocaleDateString('ru-RU', {
+				day: '2-digit',
+				month: '2-digit',
+				year: 'numeric',
+				hour: '2-digit',
+				minute: '2-digit',
+			})
+		} catch {
+			return dateString
+		}
+	}
+
+	const getFieldValue = (app, fieldName) => {
+		// Ищем поле в разных регистрах
+		return app[fieldName] || app[fieldName.toLowerCase()] || '—'
 	}
 
 	if (loading) {
@@ -125,10 +146,18 @@ function Applications() {
 	}
 
 	return (
-		<div className='applications-page'>
+		<div className='applications-page black-theme'>
 			<header className='applications-header'>
 				<div className='container'>
-					<h1>Управление заявками</h1>
+					<div className='header-top'>
+						<h1>Управление заявками</h1>
+						<div className='admin-controls'>
+							<span className='admin-badge'>👑 Администратор</span>
+							<button className='logout-btn' onClick={handleLogout}>
+								🚪 Выйти
+							</button>
+						</div>
+					</div>
 					<p className='subtitle'>Просмотр и управление заявками на вступление в отряд</p>
 				</div>
 			</header>
@@ -181,6 +210,7 @@ function Applications() {
 						{applications.length === 0 ? (
 							<div className='no-applications'>
 								<p>Нет заявок для отображения</p>
+								<p className='hint'>Проверьте, правильно ли настроено подключение к базе данных</p>
 							</div>
 						) : (
 							<table className='applications-table'>
@@ -198,12 +228,12 @@ function Applications() {
 									{applications.map(app => (
 										<tr key={app.id}>
 											<td>
-												<strong>{app.fullName}</strong>
+												<strong>{getFieldValue(app, 'fullname')}</strong>
 												<br />
-												<small>{app.email}</small>
+												<small>{getFieldValue(app, 'email')}</small>
 											</td>
-											<td>{app.grade}</td>
-											<td>{app.phone}</td>
+											<td>{getFieldValue(app, 'grade')}</td>
+											<td>{getFieldValue(app, 'phone')}</td>
 											<td>{formatDate(app.created_at)}</td>
 											<td>
 												<span className={`status-badge ${getStatusColor(app.status)}`}>
@@ -220,7 +250,7 @@ function Applications() {
 															)
 														}
 													>
-														{selectedApplication?.id === app.id ? 'Скрыть' : 'Подробнее'}
+														{selectedApplication?.id === app.id ? '✖ Скрыть' : '👁 Подробнее'}
 													</button>
 
 													{app.status === 'pending' && (
@@ -229,13 +259,13 @@ function Applications() {
 																className='action-btn approve'
 																onClick={() => updateStatus(app.id, 'approved')}
 															>
-																✓
+																✓ Одобрить
 															</button>
 															<button
 																className='action-btn reject'
 																onClick={() => updateStatus(app.id, 'rejected')}
 															>
-																✗
+																✗ Отклонить
 															</button>
 														</>
 													)}
@@ -244,7 +274,7 @@ function Applications() {
 														className='action-btn delete'
 														onClick={() => deleteApplication(app.id)}
 													>
-														Удалить
+														🗑 Удалить
 													</button>
 												</div>
 											</td>
@@ -259,7 +289,7 @@ function Applications() {
 					{selectedApplication && (
 						<div className='application-details'>
 							<div className='details-header'>
-								<h3>Детали заявки: {selectedApplication.fullName}</h3>
+								<h3>📋 Детали заявки: {getFieldValue(selectedApplication, 'fullname')}</h3>
 								<button className='close-details-btn' onClick={() => setSelectedApplication(null)}>
 									×
 								</button>
@@ -267,55 +297,60 @@ function Applications() {
 
 							<div className='details-grid'>
 								<div className='details-section'>
-									<h4>Личные данные</h4>
+									<h4>👤 Личные данные</h4>
 									<p>
-										<strong>ФИО:</strong> {selectedApplication.fullName}
+										<strong>ФИО:</strong> {getFieldValue(selectedApplication, 'fullname')}
 									</p>
 									<p>
-										<strong>Класс:</strong> {selectedApplication.grade}
+										<strong>Класс:</strong> {getFieldValue(selectedApplication, 'grade')}
 									</p>
 									<p>
-										<strong>Дата рождения:</strong> {selectedApplication.birthDate}
+										<strong>Телефон:</strong> {getFieldValue(selectedApplication, 'phone')}
 									</p>
 									<p>
-										<strong>Телефон:</strong> {selectedApplication.phone}
-									</p>
-									<p>
-										<strong>Email:</strong> {selectedApplication.email}
+										<strong>Email:</strong> {getFieldValue(selectedApplication, 'email')}
 									</p>
 								</div>
 
 								<div className='details-section'>
-									<h4>Данные родителей</h4>
+									<h4>👪 Данные родителей</h4>
 									<p>
-										<strong>ФИО родителя:</strong> {selectedApplication.parentName}
+										<strong>ФИО родителя:</strong>{' '}
+										{getFieldValue(selectedApplication, 'parentname')}
 									</p>
 									<p>
-										<strong>Телефон родителя:</strong> {selectedApplication.parentPhone}
+										<strong>Телефон родителя:</strong>{' '}
+										{getFieldValue(selectedApplication, 'parentphone')}
 									</p>
 								</div>
 
 								<div className='details-section full-width'>
-									<h4>Мотивация</h4>
-									<p>{selectedApplication.motivation}</p>
+									<h4>🎯 Мотивация</h4>
+									<div className='text-content'>
+										{getFieldValue(selectedApplication, 'motivation') || '—'}
+									</div>
 								</div>
 
-								{selectedApplication.experience && (
+								{getFieldValue(selectedApplication, 'experience') !== '—' && (
 									<div className='details-section full-width'>
-										<h4>Опыт</h4>
-										<p>{selectedApplication.experience}</p>
+										<h4>📚 Опыт</h4>
+										<div className='text-content'>
+											{getFieldValue(selectedApplication, 'experience')}
+										</div>
 									</div>
 								)}
 
-								{selectedApplication.healthInfo && (
+								{getFieldValue(selectedApplication, 'healthinfo') !== '—' && (
 									<div className='details-section full-width'>
-										<h4>Информация о здоровье</h4>
-										<p>{selectedApplication.healthInfo}</p>
+										<h4>🏥 Информация о здоровье</h4>
+										<div className='text-content'>
+											{getFieldValue(selectedApplication, 'healthinfo')}
+										</div>
 									</div>
 								)}
 
 								<div className='details-section'>
-									<h4>Дополнительно</h4>
+									<h4>📊 Дополнительно</h4>
 									<p>
 										<strong>Дата подачи:</strong> {formatDate(selectedApplication.created_at)}
 									</p>
@@ -339,13 +374,13 @@ function Applications() {
 											className='btn approve-btn'
 											onClick={() => updateStatus(selectedApplication.id, 'approved')}
 										>
-											✓ Одобрить заявку
+											✅ Одобрить заявку
 										</button>
 										<button
 											className='btn reject-btn'
 											onClick={() => updateStatus(selectedApplication.id, 'rejected')}
 										>
-											✗ Отклонить заявку
+											❌ Отклонить заявку
 										</button>
 									</>
 								)}
@@ -354,13 +389,25 @@ function Applications() {
 									className='btn delete-btn'
 									onClick={() => deleteApplication(selectedApplication.id)}
 								>
-									Удалить заявку
+									🗑 Удалить заявку
 								</button>
 							</div>
 						</div>
 					)}
 				</div>
 			</main>
+
+			<footer className='applications-footer'>
+				<div className='container'>
+					<p className='footer-info'>
+						👑 Административная панель поискового отряда "Мы этой памяти верны" | Заявок в базе:{' '}
+						<strong>{applications.length}</strong> |
+						<span className='logout-link' onClick={handleLogout}>
+							Выйти
+						</span>
+					</p>
+				</div>
+			</footer>
 		</div>
 	)
 }

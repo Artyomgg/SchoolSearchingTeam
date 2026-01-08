@@ -63,13 +63,16 @@ function Join() {
 				status: 'pending',
 			}
 
-			// Отправка в Supabase
-			const { data, error } = await supabase.from('application_forms').select()
+			// ⚠️⚠️⚠️ ИСПРАВЬ ЭТУ СТРОКУ! ⚠️⚠️⚠️
+			const { data, error } = await supabase
+				.from('application_forms')
+				.insert([dataToSend]) // ← ВСТАВЛЯЕМ ДАННЫЕ
+				.select()
 
 			if (error) throw error
 
 			setIsSubmitted(true)
-			console.log('Заявка успешно отправлена:', data)
+			console.log('✅ Заявка успешно отправлена:', data)
 
 			// Очистка формы через 5 секунд
 			setTimeout(() => {
