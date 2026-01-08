@@ -1,11 +1,12 @@
-import { useCallback, useEffect, useState } from 'react'
-import Footer from '../components/Footer'
-import { useNavigate } from 'react-router';
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router'
 
 function Home() {
 	const [currentImageIndex, setCurrentImageIndex] = useState(0)
-	const [isTransitioning, setIsTransitioning] = useState(false)
+	const [currentSlideTitle, setCurrentSlideTitle] = useState('')
+	const [isTitleChanging, setIsTitleChanging] = useState(false)
 	const navigate = useNavigate()
+	const prevTitleRef = useRef('')
 
 	// Реальные тематические изображения для поискового отряда
 	const heroImages = [
@@ -23,32 +24,76 @@ function Home() {
 		'Участие в военных парадах',
 		'Поисковые работы - восстановление имён',
 		'Поисковые работы - восстановление имён',
-		'Хатынь',
+		'Хатынь - память о трагедии',
 	]
 
+	// Инициализация текущего заголовка
+	useEffect(() => {
+		setCurrentSlideTitle(slideTitles[0])
+		prevTitleRef.current = slideTitles[0]
+	}, [])
+
 	const nextSlide = useCallback(() => {
-		setIsTransitioning(true)
-		setTimeout(() => {
-			setCurrentImageIndex(prevIndex => (prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1))
-			setIsTransitioning(false)
-		}, 500)
-	}, [heroImages.length])
+		const nextIndex = currentImageIndex === heroImages.length - 1 ? 0 : currentImageIndex + 1
+		const currentTitle = slideTitles[currentImageIndex]
+		const nextTitle = slideTitles[nextIndex]
+
+		// Если заголовки совпадают - просто меняем фото
+		if (currentTitle === nextTitle) {
+			setCurrentImageIndex(nextIndex)
+		} else {
+			// Если заголовки разные - анимируем смену
+			setIsTitleChanging(true)
+			setTimeout(() => {
+				setCurrentSlideTitle(nextTitle)
+				setCurrentImageIndex(nextIndex)
+				prevTitleRef.current = nextTitle
+				setTimeout(() => setIsTitleChanging(false), 10)
+			}, 300)
+		}
+	}, [currentImageIndex, heroImages.length])
 
 	const prevSlide = useCallback(() => {
-		setIsTransitioning(true)
-		setTimeout(() => {
-			setCurrentImageIndex(prevIndex => (prevIndex === 0 ? heroImages.length - 1 : prevIndex - 1))
-			setIsTransitioning(false)
-		}, 500)
-	}, [heroImages.length])
+		const prevIndex = currentImageIndex === 0 ? heroImages.length - 1 : currentImageIndex - 1
+		const currentTitle = slideTitles[currentImageIndex]
+		const prevTitle = slideTitles[prevIndex]
 
-	const goToSlide = useCallback(index => {
-		setIsTransitioning(true)
-		setTimeout(() => {
-			setCurrentImageIndex(index)
-			setIsTransitioning(false)
-		}, 500)
-	}, [])
+		// Если заголовки совпадают - просто меняем фото
+		if (currentTitle === prevTitle) {
+			setCurrentImageIndex(prevIndex)
+		} else {
+			// Если заголовки разные - анимируем смену
+			setIsTitleChanging(true)
+			setTimeout(() => {
+				setCurrentSlideTitle(prevTitle)
+				setCurrentImageIndex(prevIndex)
+				prevTitleRef.current = prevTitle
+				setTimeout(() => setIsTitleChanging(false), 10)
+			}, 300)
+		}
+	}, [currentImageIndex, heroImages.length])
+
+	const goToSlide = useCallback(
+		index => {
+			const currentTitle = slideTitles[currentImageIndex]
+			const newTitle = slideTitles[index]
+
+			// Если заголовки совпадают - просто меняем фото
+			if (currentTitle === newTitle) {
+				setCurrentImageIndex(index)
+			} else {
+				// Если заголовки разные - анимируем смену
+				setIsTitleChanging(true)
+				setTimeout(() => {
+					setCurrentSlideTitle(newTitle)
+					setCurrentImageIndex(index)
+					prevTitleRef.current = newTitle
+					setTimeout(() => setIsTitleChanging(false), 10)
+				}, 300)
+			}
+		},
+		[currentImageIndex]
+	)
 
 	useEffect(() => {
 		const interval = setInterval(() => {
@@ -62,20 +107,22 @@ function Home() {
 			{/* Герой-секция с улучшенным слайдером */}
 			<section className='hero-section'>
 				<div
-					className={`hero-background ${isTransitioning ? 'fade-out' : 'fade-in'}`}
+					className='hero-background'
 					style={{ backgroundImage: heroImages[currentImageIndex] }}
 				></div>
 
 				<div className='hero-overlay'>
 					<div className='hero-content'>
-						<div className={`hero-title-wrapper ${isTransitioning ? 'slide-out' : 'slide-in'}`}>
+						<div className='hero-title-wrapper'>
 							<h1 className='hero-title'>
 								<span>Поисковый отряд</span>
 								<span>"Мы этой памяти верны"</span>
 							</h1>
 							<p className='hero-subtitle'>Средняя школа №30 г. Минска</p>
 							<div className='slide-title'>
-								<h2>{slideTitles[currentImageIndex]}</h2>
+								<h2 className={isTitleChanging ? 'title-fade-out' : 'title-fade-in'}>
+									{currentSlideTitle}
+								</h2>
 							</div>
 						</div>
 
@@ -128,7 +175,7 @@ function Home() {
 
 			{/* Основное содержание */}
 			<main className='main-content'>
-						{/* Миссия отряда */}
+				{/* Миссия отряда */}
 				<section className='mission-section'>
 					<div className='container'>
 						<h2>Наша Миссия</h2>
@@ -203,6 +250,7 @@ function Home() {
 						</div>
 					</div>
 				</section>
+
 				{/* Цитата */}
 				<section className='quote-section'>
 					<div className='container'>
@@ -221,15 +269,16 @@ function Home() {
 						<h2>Хочешь стать частью отряда?</h2>
 						<p>Присоединяйся к нам и помоги восстановить историческую справедливость</p>
 						<div className='cta-buttons'>
-							<button className='btn-primary' onClick={()=> navigate('/join')}>Вступить в отряд</button>
-							<button className='btn-secondary' onClick={()=> navigate('/about')}>Узнать больше</button>
+							<button className='btn-primary' onClick={() => navigate('/join')}>
+								Вступить в отряд
+							</button>
+							<button className='btn-secondary' onClick={() => navigate('/about')}>
+								Узнать больше
+							</button>
 						</div>
 					</div>
 				</section>
 			</main>
-
-			{/* Футер */}
-			<Footer/>
 		</div>
 	)
 }

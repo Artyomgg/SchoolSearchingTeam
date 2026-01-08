@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
-import { Link } from 'react-router'
+import { useNavigate } from 'react-router'
+import { supabase } from '../lib/supabase'
 
 function Join() {
 	const [formData, setFormData] = useState({
@@ -7,7 +8,6 @@ function Join() {
 		grade: '',
 		phone: '',
 		email: '',
-		birthDate: '',
 		parentName: '',
 		parentPhone: '',
 		motivation: '',
@@ -18,6 +18,9 @@ function Join() {
 	const [isSubmitted, setIsSubmitted] = useState(false)
 	const [isDocumentModalOpen, setIsDocumentModalOpen] = useState(false)
 	const [pdfError, setPdfError] = useState(false)
+	const [loading, setLoading] = useState(false)
+	const [error, setError] = useState('')
+	const navigate = useNavigate()
 	const pdfContainerRef = useRef(null)
 
 	const handleChange = e => {
@@ -28,27 +31,67 @@ function Join() {
 		}))
 	}
 
-	const handleSubmit = e => {
+	const handleSubmit = async e => {
 		e.preventDefault()
-		// Здесь будет отправка данных на сервер
-		console.log('Данные формы:', formData)
-		setIsSubmitted(true)
-		// Сброс формы
-		setTimeout(() => {
-			setFormData({
-				fullName: '',
-				grade: '',
-				phone: '',
-				email: '',
-				birthDate: '',
-				parentName: '',
-				parentPhone: '',
-				motivation: '',
-				experience: '',
-				healthInfo: '',
-			})
-			setIsSubmitted(false)
-		}, 5000)
+		setLoading(true)
+		setError('')
+
+		try {
+			// Валидация данных
+			if (
+				!formData.fullName ||
+				!formData.grade ||
+				!formData.phone ||
+				!formData.email ||
+				!formData.parentName ||
+				!formData.parentPhone
+			) {
+				throw new Error('Пожалуйста, заполните все обязательные поля')
+			}
+
+			// Подготовка данных для отправки
+			const dataToSend = {
+				fullname: formData.fullName,
+				grade: formData.grade,
+				phone: formData.phone,
+				email: formData.email,
+				parentname: formData.parentName,
+				parentphone: formData.parentPhone,
+				motivation: formData.motivation,
+				experience: formData.experience || '',
+				healthinfo: formData.healthInfo || '',
+				status: 'pending',
+			}
+
+			// Отправка в Supabase
+			const { data, error } = await supabase.from('application_forms').select()
+
+			if (error) throw error
+
+			setIsSubmitted(true)
+			console.log('Заявка успешно отправлена:', data)
+
+			// Очистка формы через 5 секунд
+			setTimeout(() => {
+				setFormData({
+					fullName: '',
+					grade: '',
+					phone: '',
+					email: '',
+					parentName: '',
+					parentPhone: '',
+					motivation: '',
+					experience: '',
+					healthInfo: '',
+				})
+				setIsSubmitted(false)
+			}, 5000)
+		} catch (err) {
+			console.error('Ошибка при отправке:', err)
+			setError(err.message || 'Произошла ошибка при отправке заявки')
+		} finally {
+			setLoading(false)
+		}
 	}
 
 	const openDocumentModal = e => {
@@ -67,28 +110,6 @@ function Join() {
 
 	return (
 		<div className='join-page'>
-			{/* Навигация */}
-			<nav className='join-navigation'>
-				<div className='nav-container'>
-					<Link to='/' className='nav-logo'>
-						<span className='logo-icon'>🎖️</span>
-						<span className='logo-text'>"Мы этой памяти верны"</span>
-					</Link>
-					<Link to='/' className='back-to-home'>
-						<svg width='16' height='16' viewBox='0 0 24 24' fill='none'>
-							<path
-								d='M19 12H5M12 19l-7-7 7-7'
-								stroke='currentColor'
-								strokeWidth='2'
-								strokeLinecap='round'
-								strokeLinejoin='round'
-							/>
-						</svg>
-						Вернуться на главную
-					</Link>
-				</div>
-			</nav>
-
 			{/* Герой-секция */}
 			<section className='join-hero'>
 				<div className='join-hero-overlay'>
@@ -111,6 +132,8 @@ function Join() {
 							<div className='section-header'>
 								<h2>Анкета кандидата</h2>
 								<p className='section-subtitle'>Все поля обязательны для заполнения</p>
+
+								{error && <div className='error-message'>⚠️ {error}</div>}
 							</div>
 
 							{isSubmitted ? (
@@ -122,6 +145,12 @@ function Join() {
 										Принесите заполненное согласие на обработку персональных данных при первом
 										посещении отряда
 									</p>
+									<button
+										className='view-applications-btn'
+										onClick={() => navigate('/applications')}
+									>
+										Перейти к просмотру заявок
+									</button>
 								</div>
 							) : (
 								<form onSubmit={handleSubmit} className='join-form'>
@@ -140,6 +169,7 @@ function Join() {
 													onChange={handleChange}
 													required
 													placeholder='Иванов Иван Иванович'
+													disabled={loading}
 												/>
 											</div>
 
@@ -153,23 +183,12 @@ function Join() {
 													onChange={handleChange}
 													required
 													placeholder='10А'
+													disabled={loading}
 												/>
 											</div>
 										</div>
 
 										<div className='form-row'>
-											<div className='form-group'>
-												<label htmlFor='birthDate'>Дата рождения *</label>
-												<input
-													type='date'
-													id='birthDate'
-													name='birthDate'
-													value={formData.birthDate}
-													onChange={handleChange}
-													required
-												/>
-											</div>
-
 											<div className='form-group'>
 												<label htmlFor='phone'>Телефон *</label>
 												<input
@@ -180,21 +199,23 @@ function Join() {
 													onChange={handleChange}
 													required
 													placeholder='+375 (XX) XXX-XX-XX'
+													disabled={loading}
 												/>
 											</div>
-										</div>
 
-										<div className='form-group'>
-											<label htmlFor='email'>Электронная почта *</label>
-											<input
-												type='email'
-												id='email'
-												name='email'
-												value={formData.email}
-												onChange={handleChange}
-												required
-												placeholder='example@school.by'
-											/>
+											<div className='form-group'>
+												<label htmlFor='email'>Электронная почта *</label>
+												<input
+													type='email'
+													id='email'
+													name='email'
+													value={formData.email}
+													onChange={handleChange}
+													required
+													placeholder='example@school.by'
+													disabled={loading}
+												/>
+											</div>
 										</div>
 									</div>
 
@@ -213,6 +234,7 @@ function Join() {
 													onChange={handleChange}
 													required
 													placeholder='ФИО родителя'
+													disabled={loading}
 												/>
 											</div>
 
@@ -226,6 +248,7 @@ function Join() {
 													onChange={handleChange}
 													required
 													placeholder='+375 (XX) XXX-XX-XX'
+													disabled={loading}
 												/>
 											</div>
 										</div>
@@ -247,6 +270,7 @@ function Join() {
 												required
 												rows='4'
 												placeholder='Расскажите о своих мотивах и ожиданиях...'
+												disabled={loading}
 											/>
 										</div>
 
@@ -261,6 +285,22 @@ function Join() {
 												onChange={handleChange}
 												rows='3'
 												placeholder='Туризм, краеведение, волонтерство и т.д.'
+												disabled={loading}
+											/>
+										</div>
+
+										<div className='form-group'>
+											<label htmlFor='healthInfo'>
+												Информация о состоянии здоровья (если необходимо)
+											</label>
+											<textarea
+												id='healthInfo'
+												name='healthInfo'
+												value={formData.healthInfo}
+												onChange={handleChange}
+												rows='3'
+												placeholder='Особенности здоровья, аллергии и т.д.'
+												disabled={loading}
 											/>
 										</div>
 									</div>
@@ -268,21 +308,39 @@ function Join() {
 									{/* Чекбоксы согласия */}
 									<div className='form-checkboxes'>
 										<div className='checkbox-group'>
-											<input type='checkbox' id='agreement' name='agreement' required />
+											<input
+												type='checkbox'
+												id='agreement'
+												name='agreement'
+												required
+												disabled={loading}
+											/>
 											<label htmlFor='agreement'>
 												Я ознакомлен(а) с правилами и требованиями поискового отряда *
 											</label>
 										</div>
 
 										<div className='checkbox-group'>
-											<input type='checkbox' id='parentAgreement' name='parentAgreement' required />
+											<input
+												type='checkbox'
+												id='parentAgreement'
+												name='parentAgreement'
+												required
+												disabled={loading}
+											/>
 											<label htmlFor='parentAgreement'>
 												Родители/опекуны согласны с моим участием в деятельности отряда *
 											</label>
 										</div>
 
 										<div className='checkbox-group'>
-											<input type='checkbox' id='dataProcessing' name='dataProcessing' required />
+											<input
+												type='checkbox'
+												id='dataProcessing'
+												name='dataProcessing'
+												required
+												disabled={loading}
+											/>
 											<label htmlFor='dataProcessing'>
 												Я согласен(на) на обработку персональных данных *
 											</label>
@@ -290,8 +348,8 @@ function Join() {
 									</div>
 
 									<div className='form-submit'>
-										<button type='submit' className='submit-btn'>
-											Отправить заявку
+										<button type='submit' className='submit-btn' disabled={loading}>
+											{loading ? 'Отправка...' : 'Отправить заявку'}
 										</button>
 										<p className='form-note'>
 											После отправки формы с вами свяжется руководитель отряда для собеседования
@@ -310,6 +368,7 @@ function Join() {
 									<li>Ответственность и дисциплинированность</li>
 									<li>Интерес к истории и поисковой работе</li>
 									<li>Согласие родителей/опекунов</li>
+									<li>Хорошее состояние здоровья</li>
 								</ul>
 							</div>
 
@@ -426,9 +485,8 @@ function Join() {
 											height='600px'
 											onError={handlePdfError}
 										>
-											{/* Если object не работает, показываем iframe */}
 											<iframe
-												src={`/data/personal_data_agreement.pdf`}
+												src='/data/personal_data_agreement.pdf'
 												title='PDF Viewer'
 												width='100%'
 												height='600px'
@@ -443,8 +501,6 @@ function Join() {
 									<h4>Не удалось загрузить PDF</h4>
 									<p>Возможно, файл временно недоступен.</p>
 									<p>Вы можете скачать документ или просмотреть его содержимое ниже:</p>
-
-									<div className='pdf-alternative-container'>{pdfAlternativeText}</div>
 
 									<div className='error-actions'>
 										<a

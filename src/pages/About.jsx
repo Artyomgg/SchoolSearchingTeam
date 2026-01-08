@@ -1,3 +1,4 @@
+import '../css/About.css'
 
 function About() {
 	const achievements = [{ year: '2025', description: 'Основание поискового отряда' }]
@@ -33,7 +34,6 @@ function About() {
 					<div className='container'>
 						<div className='section-header'>
 							<h2>Наша история</h2>
-							{/* <p className='section-subtitle'>То, чем мы гордимся</p> */}
 						</div>
 
 						<div className='achievements-timeline'>
@@ -145,7 +145,7 @@ function About() {
 										<strong>Адрес школы:</strong> г. Минск, ул. Жуковского, 11
 									</p>
 									<p>
-										<strong>Кабинет отряда:</strong> 334
+										<strong>Кабинет отряда:</strong> 334 a
 									</p>
 									<p>
 										<strong>Время работы:</strong> Понедельник-Пятница
@@ -165,7 +165,8 @@ function About() {
 											src='https://yandex.ru/map-widget/v1/?um=constructor%3Ae9cdabd87e70c176196bba136de083c56a23c7678b402870ff23937c9538e85c&amp;source=constructor'
 											width='100%'
 											height='394'
-											frameborder='0'
+											frameBorder='0'
+											title='Карта расположения школы'
 										></iframe>
 									</div>
 								</div>
